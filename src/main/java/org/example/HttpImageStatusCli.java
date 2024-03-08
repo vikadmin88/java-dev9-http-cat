@@ -22,20 +22,18 @@ public class HttpImageStatusCli {
                     break;
                 }
 
-                if (code < 100 || code > 599) {
-                    System.out.print("Invalid value! " + message);
-                } else {
-                    try {
-                        HttpStatusImageDownloader.downloadStatusImage(code);
-                        System.out.println("Downloaded image with code: " + code);
-                    } catch (IOException e) {
-                        System.out.println("There is no image for HTTP status " + code + ". Exception: " + e.getMessage());
-                    }
-                    code = -1;
+                try {
+                    HttpStatusImageDownloader.downloadStatusImage(code);
+                    System.out.println("Downloaded image with code: " + code);
+                } catch (IOException | IllegalArgumentException e) {
+                    System.out.println("There is no image for HTTP status " + code + ". Exception: " + e.getMessage());
                 }
-            } else {
-                scanner.next();
                 code = -1;
+
+            } else {
+                System.out.print("Incorrect code! " + message);
+                scanner.next();
+                code = -2;
             }
         }
     }

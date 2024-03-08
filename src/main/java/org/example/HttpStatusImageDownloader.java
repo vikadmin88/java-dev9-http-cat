@@ -1,32 +1,32 @@
 package org.example;
 
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 public class HttpStatusImageDownloader {
 
-    public static void downloadStatusImage(int code) throws IOException {
-        String url = HttpStatusChecker.getStatusImage(code);
+    public static void downloadStatusImage(int code) throws IOException, IllegalArgumentException {
+        String url = null;
+        try {
+            url = HttpStatusChecker.getStatusImage(code);
+        } catch (IOException e) {
+            throw new IOException(e);
+        }
 
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                    .url(url)
-                    .build();
+        Request request = HttpClient.getBuilder()
+                .url(url)
+                .build();
 
-        try (Response response = client.newCall(request).execute()) {
-
+        try (Response response = HttpClient.doCall(request)) {
             if (!response.isSuccessful() || response.body() == null) {
-                throw new IOException("Response code: " + response.code());
+                throw new IllegalArgumentException("Error with response code: " + response.code());
             }
-            InputStream inputStream = response.body().byteStream();
 
+            InputStream inputStream = response.body().byteStream();
             if (!saveImage(inputStream, code)) {
                 throw new IOException("File not saved");
             }
